@@ -26,7 +26,7 @@ class IHex(object):
       elif t == 0x03:
         ihex.set_mode(16)
 
-        cs, ip = struct.unpack(">2H", d[0:2])
+        cs, ip = struct.unpack(">2H", d[0:4])
         ihex.set_start((cs, ip))
 
       elif t == 0x04:
