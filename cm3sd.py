@@ -102,6 +102,8 @@ class CM3SD(object):
         printf("Hold BOOT and press RESET.\n")
         printf("Waiting for bootloader...");
         while True:
+            while self.serial.read(1):
+                pass
             self.serial.flushInput()
             self.serial.write(int2byte(0x08))
             response = self.readuntil(100, [b'\r\n', b'\n\r'])
