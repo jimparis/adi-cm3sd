@@ -102,6 +102,7 @@ class CM3SD(object):
 
         printf("Hold BOOT and press RESET.\n")
         printf("Waiting for bootloader...");
+        tries = 0
         while True:
             while self.serial.read(1):
                 pass
@@ -114,6 +115,13 @@ class CM3SD(object):
                 printf("?")
             else:
                 printf(".")
+            tries += 1
+            if tries > 5:
+                # re-open the port
+                tries = 0
+                self.serial.close()
+                self.serial.open()
+
         ident = struct.unpack('15s3s4s2s', response)
         printf(" ok\nChip: '%s' revision '%s'\n",
                self.quote_raw(ident[0]),
