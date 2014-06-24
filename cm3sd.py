@@ -67,6 +67,7 @@ class CM3SD(object):
         self.serial.timeout = 0.1
         self.serial.write_timeout = 1
         self.quote_re = None
+        self.enter_time = None
 
     def quote_raw(self, data):
         if self.quote_re is None:
@@ -117,6 +118,7 @@ class CM3SD(object):
         printf(" ok\nChip: '%s' revision '%s'\n",
                self.quote_raw(ident[0]),
                self.quote_raw(ident[1]))
+        self.enter_time = time.time()
 
     def command(self, cmd, value, data = b'', timeout = 1.0, expect = 0x06):
         """Send a command to the device and return the response byte"""
@@ -156,7 +158,16 @@ class CM3SD(object):
         printf(" ok\n")
 
     def reset(self):
-        printf("Reset...")
+        # If the programming was super fast, the user might not have
+        # released BOOT yet, so just warn and wait before actually
+        # resetting.
+        if self.enter_time:
+            elapsed = time.time() - self.enter_time
+            if elapsed < 1:
+                printf("Will reset shortly; ensure BOOT is not pressed\n")
+                time.sleep(2 - elapsed)
+        printf("Resetting...")
+        time.sleep(1)
         ret = self.command('R', 0x00000001)
         printf(" ok\n")
 
