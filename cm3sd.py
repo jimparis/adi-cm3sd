@@ -175,7 +175,6 @@ class CM3SD(object):
                 printf("Will reset shortly; ensure BOOT is not pressed\n")
                 time.sleep(2 - elapsed)
         printf("Resetting...")
-        time.sleep(1)
         ret = self.command('R', 0x00000001)
         printf(" ok\n")
 
