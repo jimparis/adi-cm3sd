@@ -254,7 +254,8 @@ if __name__ == "__main__":
         serial = serial.Serial(args.device, args.baudrate)
 
     cm3sd = CM3SD(serial)
-    cm3sd.open()
+    if args.write or args.erase or args.reset:
+        cm3sd.open()
 
     if args.erase:
         cm3sd.erase()
