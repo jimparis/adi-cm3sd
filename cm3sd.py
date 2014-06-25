@@ -53,7 +53,6 @@ class CM3SDError(Exception):
 
 def int2byte(i):
     if sys.version_info < (3,):
-        print(repr(i))
         return chr(i)
     return bytes((i,))
 
