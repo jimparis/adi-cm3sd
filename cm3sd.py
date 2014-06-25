@@ -53,6 +53,7 @@ class CM3SDError(Exception):
 
 def int2byte(i):
     if sys.version_info < (3,):
+        print(repr(i))
         return chr(i)
     return bytes((i,))
 
@@ -140,7 +141,7 @@ class CM3SD(object):
         checksum = 0
         for v in out[2:]:
             checksum += byte2int(v)
-        checksum = 256 - (checksum % 256)
+        checksum = (256 - (checksum % 256)) % 256
         out += int2byte(checksum)
 
         # Send command
