@@ -110,7 +110,12 @@ class CM3SD(object):
             self.serial.write(int2byte(0x08))
             response = self.readuntil(100, [b'\r\n', b'\n\r'])
             if len(response) == 24:
-                break
+                ident = struct.unpack('15s3s4s2s', response)
+                # ident[0] is typically 'ADuCRF101  128 '
+                if ident[0].startswith(b'ADuC'):
+                    break
+                else:
+                    printf("/")
             elif len(response) > 0:
                 printf("?")
             else:
@@ -122,7 +127,6 @@ class CM3SD(object):
                 self.serial.close()
                 self.serial.open()
 
-        ident = struct.unpack('15s3s4s2s', response)
         printf(" ok\nChip: '%s' revision '%s'\n",
                self.quote_raw(ident[0]),
                self.quote_raw(ident[1]))
