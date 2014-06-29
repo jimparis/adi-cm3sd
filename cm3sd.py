@@ -253,9 +253,14 @@ if __name__ == "__main__":
     # Only need to use the subclassed Serial if we're opening
     # a terminal afterwards.
     if args.terminal:
-        serial = jimterm.MySerial(args.device, args.baudrate)
+        serial = jimterm.MySerial(args.device, 9600)
     else:
-        serial = serial.Serial(args.device, args.baudrate)
+        serial = serial.Serial(args.device, 9600)
+
+    # Sometimes the baudrate seems to not get set properly; this may
+    # be a Linux cdc-acm driver bug.  Changing it helps.
+    serial.setBaudrate(38400)
+    serial.setBaudrate(args.baudrate)
 
     cm3sd = CM3SD(serial)
     if args.write or args.erase or args.reset:
