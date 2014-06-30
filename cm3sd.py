@@ -44,6 +44,8 @@ import string
 import jimterm
 import ihex
 
+SerialException = serial.serialutil.SerialException
+
 def printf(str, *args):
     print(str % args, end='')
     sys.stdout.flush()
@@ -104,22 +106,28 @@ class CM3SD(object):
         printf("Waiting for bootloader...");
         tries = 0
         while True:
-            while self.serial.read(1):
-                pass
-            self.serial.flushInput()
-            self.serial.write(int2byte(0x08))
-            response = self.readuntil(100, [b'\r\n', b'\n\r'])
-            if len(response) == 24:
-                ident = struct.unpack('15s3s4s2s', response)
-                # ident[0] is typically 'ADuCRF101  128 '
-                if ident[0].startswith(b'ADuC'):
-                    break
+            try:
+                while self.serial.read(1):
+                    pass
+                self.serial.flushInput()
+                self.serial.write(int2byte(0x08))
+                response = self.readuntil(100, [b'\r\n', b'\n\r'])
+                if len(response) == 24:
+                    ident = struct.unpack('15s3s4s2s', response)
+                    # ident[0] is typically 'ADuCRF101  128 '
+                    if ident[0].startswith(b'ADuC'):
+                        break
+                    else:
+                        printf("/")
+                elif len(response) > 0:
+                    printf("?")
                 else:
-                    printf("/")
-            elif len(response) > 0:
-                printf("?")
-            else:
-                printf(".")
+                    printf(".")
+            except (OSError, SerialException) as e:
+                s = str(e)
+                if "returned no data" in s or "temporarily unavailable" in s:
+                    printf("\n--- Error: maybe the device is open elsewhere?\n")
+                raise
             tries += 1
             if tries > 5:
                 # re-open the port
